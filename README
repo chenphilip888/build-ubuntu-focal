@@ -1,0 +1,93 @@
+This is to build Ubuntu Focal sdcard image for following SBC's:
+rpi4b  ( Raspberry Pi 4B )
+radxa  ( Rock Pi 4B plus )
+rk3328 ( Renegade ROC-RK3328-CC )
+tinker ( ASUS TinkerBoard )
+
+Steps to build Ubuntu Focal sdcard image:
+
+1. Install cross compiler and live-build:
+   wget https://releases.linaro.org/components/toolchain/binaries/7.3-2018.05/aarch64-linux-gnu/gcc-linaro-7.3.1-2018.05-x86_64_aarch64-linux-gnu.tar.xz
+   sudo tar xvf gcc-linaro-7.3.1-2018.05-x86_64_aarch64-linux-gnu.tar.xz  -C /usr/local/
+   wget https://releases.linaro.org/components/toolchain/binaries/7.3-2018.05/arm-linux-gnueabihf/gcc-linaro-7.3.1-2018.05-x86_64_arm-linux-gnueabihf.tar.xz
+   sudo tar xvf gcc-linaro-7.3.1-2018.05-x86_64_arm-linux-gnueabihf.tar.xz -C /usr/local/
+   sudo apt-get install debootstrap debhelper kpartx gdisk devscripts dh-systemd isolinux po4a
+   wget https://launchpad.net/debian/+archive/primary/+sourcefiles/live-build/1:20210407/live-build_20210407.tar.xz
+   tar xvf live-build_20210407.tar.xz
+   cd live-build
+   sudo make install
+
+2. git clone https://github.com/chenphilip888/build-ubuntu-focal.git
+   sudo apt-get install build-essential git libssl-dev nmap net-tools libncurses5-dev libncursesw5-dev dnsutils vsftpd ftp binfmt-support qemu-user-static scons libncurses5-dev libncursesw5-dev libdbus-glib-1-dev libbluetooth-dev python-dev python-setuptools python3-dev python3-pip python3-setuptools libcurl4-openssl-dev gettext dbus-x11 chrpath diffstat gawk texinfo curl flex bison device-tree-compiler python swig
+
+3. cd ~/build-ubuntu-focal/rpi4b
+   git clone https://github.com/raspberrypi/linux --depth=1 -b rpi-5.4.y
+   cd linux; mkdir tmp; cd tmp; mkdir lib;
+   cd ../../; mkdir out;
+
+   make all
+   The result is in ./out/sdcard.img
+   make cleanall
+
+   sudo dd if=./out/sdcard.img of=/dev/mmcblk0 bs=4096 conv=notrunc,fsync
+
+4. cd ~/build-ubuntu-focal/radxa
+   git clone https://github.com/radxa/u-boot --depth=1 -b stable-4.4-rockpi4
+   git clone --depth=1 git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+   cd linux; mkdir tmp; cd tmp; mkdir lib;
+   cd ../../; mkdir out;
+
+   make all
+   The result is in ./out/sdcard.img 
+   make cleanall
+
+   sudo dd if=./out/sdcard.img of=/dev/mmcblk0 bs=4096 conv=notrunc,fsync
+
+5. cd ~/build-ubuntu-focal/rk3328
+   git clone https://github.com/u-boot/u-boot
+   git clone https://github.com/FireflyTeam/kernel --depth=1 -b rk3328/firefly
+   cd kernel; mkdir tmp; cd tmp; mkdir lib;
+   cd ../../; mkdir out;
+
+   make all
+   The result is in ./out/sdcard.img
+   make cleanall
+
+   sudo dd if=./out/sdcard.img of=/dev/mmcblk0 bs=4096 conv=notrunc,fsync
+
+6. cd ~/build-ubuntu-focal/tinker
+   git clone https://github.com/TinkerBoard/debian_u-boot.git --depth=1 -b release
+   wget https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.10.tar.xz
+   tar -xJf linux-5.10.tar.xz
+   cd linux-5.10; mkdir tmp; cd tmp; mkdir lib;
+   cd ../../; mkdir out;
+
+   make all
+   The result is in ./out/sdcard.img
+   make cleanall
+
+   sudo dd if=./out/sdcard.img of=/dev/mmcblk0 bs=4096 conv=notrunc,fsync
+
+plugin sdcard to SBC
+login:
+username: linaro
+password: linaro
+uname -a
+lsb_release -a
+setup internet for radxa, tinker and rk3328: plugin ehternet cable to SBC
+sudo ifconfig eth0 up
+sudo vi /etc/network/interfaces ( append
+auto eth0
+iface eth0 inet dhcp )
+sudo systemctl restart networking
+setup wifi for rpi4b: sudo nmcli dev wifi connect "SSID" password "PASSWD"
+sudo ifconfig
+sudo dpkg-reconfigure tzdata
+sudo dpkg-reconfigure locales
+sudo reboot
+ps aux | grep -i apt
+sudo apt update
+sudo apt upgrade
+sudo apt dist-upgrade
+glxinfo | grep OpenGL
+sudo apt install vlc speedtest-cli glmark2-es2
