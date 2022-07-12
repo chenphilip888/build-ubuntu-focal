@@ -3,6 +3,7 @@
 TARGET_ROOTFS_DIR=./binary
 MOUNTPOINT=./rootfs
 ROOTFSIMAGE=linaro-rootfs.img
+ROOT_UUID="B921B045-1DF0-41C3-AF44-4C6F280D3FAE"
 
 echo Making rootfs!
 
@@ -24,7 +25,7 @@ finish() {
 }
 
 echo Format rootfs to ext4
-mkfs.ext4 ${ROOTFSIMAGE}
+mkfs.ext4 -U ${ROOT_UUID} ${ROOTFSIMAGE}
 
 echo Mount rootfs to ${MOUNTPOINT}
 sudo mount  ${ROOTFSIMAGE} ${MOUNTPOINT}
