@@ -80,12 +80,15 @@ sudo vi /etc/network/interfaces ( append
 auto eth0
 iface eth0 inet dhcp )
 sudo systemctl restart networking
+sudo ifconfig
 setup wifi for rpi4b: sudo nmcli dev wifi connect "SSID" password "PASSWD"
 sudo ifconfig
+sudo vi /etc/apt/sources.list ( replace with http://mirrors.ocf.berkeley.edu/ubuntu-ports )
 sudo dpkg-reconfigure tzdata
 sudo dpkg-reconfigure locales
+sync
 sudo reboot
-ps aux | grep -i apt
+ps aux | grep -i apt ( wait till all apt done except grep -i apt )
 sudo apt update
 sudo apt upgrade
 sudo apt dist-upgrade
